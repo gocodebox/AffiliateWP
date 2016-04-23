@@ -296,6 +296,7 @@ abstract class Affiliate_WP_Base {
 	 * Retrieves the rate and type for a specific product
 	 *
 	 * @since 1.2
+	 * @since 1.8 The `$product_type` parameter was added
 	 * @access public
 	 *
 	 * @param string $base_amount  Optional. Base amount to calculate the referral amount from.
