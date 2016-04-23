@@ -129,6 +129,7 @@ class Affiliate_WP_PMP extends Affiliate_WP_Base {
 			return parent::get_product_rate( $product_id, $args );
 		}
 
+		/** This filter is documented in includes/integrations/class-base.php */
 		return apply_filters( 'affwp_get_product_rate', $rate, $product_id, $args, $affiliate_id, $this->context );
 	}
 

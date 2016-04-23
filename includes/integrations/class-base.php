@@ -343,8 +343,18 @@ abstract class Affiliate_WP_Base {
 
 		$rate = get_post_meta( $product_id, '_affwp_' . $this->context . '_product_rate', true );
 
+		/**
+		 * Filters the integration product rate.
+		 *
+		 * @since 1.2
+		 *
+		 * @param float  $rate         Product-level referral rate.
+		 * @param int    $product_id   Product ID.
+		 * @param array  $args         Arguments for retrieving the product rate.
+		 * @param int    $affiliate_id Affilaite ID.
+		 * @param string $context      Order context.
+		 */
 		return apply_filters( 'affwp_get_product_rate', $rate, $product_id, $args, $affiliate_id, $this->context );
-
 	}
 
 	/**
