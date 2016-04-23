@@ -376,7 +376,7 @@ class Affiliate_WP_PMP extends Affiliate_WP_Base {
 			return;
 		}
 
-		if ( ! wp_verify_nonce( 'affwp_pmp_membership_referrals_nonce', 'affwp_pmp_membership_referrals_nonce' ) ) {
+		if ( ! wp_verify_nonce( $_REQUEST['affwp_pmp_membership_referrals_nonce'], 'affwp_pmp_membership_referrals_nonce' ) ) {
 			return;
 		}
 
