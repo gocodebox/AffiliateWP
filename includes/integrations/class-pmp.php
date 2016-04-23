@@ -55,14 +55,14 @@ class Affiliate_WP_PMP extends Affiliate_WP_Base {
 
 		$membership_level = isset( $order->membership_id ) ? (int) $order->membership_id : 0;
 
-		$this->level_referral_settings = get_option( "_affwp_pmp_product_settings_{$membership_level}", array() );
+		$this->level_referrals_settings = get_option( "_affwp_pmp_product_settings_{$membership_level}", array() );
 
 		// If the membership-level rate is empty, it's effectively disabled (default rate).
 		if ( empty( $this->level_referrals_settings['rate'] ) ) {
 			$this->level_referrals_enabled = false;
 		} else {
 			// Otherwise check if membership-level referrals are explicitly disabled.
-			$this->level_referrals_enabled = ( isset( $this->level_referral_settings['disabled'] ) && false == $this->level_referral_settings['disabled'] );
+			$this->level_referrals_enabled = ( isset( $this->level_referrals_settings['disabled'] ) && false == $this->level_referrals_settings['disabled'] );
 		}
 
 		if ( $this->was_referred() || $coupon_affiliate_id ) {
