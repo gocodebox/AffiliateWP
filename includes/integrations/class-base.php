@@ -299,15 +299,21 @@ abstract class Affiliate_WP_Base {
 	 * @since   1.2
 	 * @return  array
 	 */
-	public function calculate_referral_amount( $base_amount = '', $reference = '', $product_id = 0, $affiliate_id = 0 ) {
+	public function calculate_referral_amount( $base_amount = '', $reference = '', $product_id = 0, $affiliate_id = 0, $product_type = '' ) {
 
 		// the affiliate ID can be optionally passed in to override the referral amount
 		$affiliate_id = ! empty( $affiliate_id ) ? $affiliate_id : $this->get_affiliate_id( $reference );
 
 		$rate = '';
 
-		if ( ! empty( $product_id ) ) {
-			$rate = $this->get_product_rate( $product_id, $args = array( 'reference' => $reference, 'affiliate_id' => $affiliate_id ) );
+		if ( ! empty( $product_id ) || ! empty( $product_type ) ) {
+			$args = array(
+				'reference'    => $reference,
+				'affiliate_id' => $affiliate_id
+				'product_Type' => $product_type
+			);
+
+			$rate = $this->get_product_rate( $product_id, $args );
 		}
 
 		$amount = affwp_calc_referral_amount( $base_amount, $affiliate_id, $reference, $rate, $product_id );
