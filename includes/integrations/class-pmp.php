@@ -2,6 +2,24 @@
 
 class Affiliate_WP_PMP extends Affiliate_WP_Base {
 
+	/**
+	 * Whether membership-level referrals are enabled.
+	 *
+	 * @since 1.8
+	 * @access public
+	 * @var bool
+	 */
+	public $level_referrals_enabled;
+
+	/**
+	 * Membership-level referrals settings.
+	 *
+	 * @since 1.8
+	 * @access public
+	 * @var array
+	 */
+	public $level_referrals_settings = array();
+
 	public function init() {
 
 		$this->context = 'pmp';
@@ -17,6 +35,9 @@ class Affiliate_WP_PMP extends Affiliate_WP_Base {
 		add_action( 'pmpro_discount_code_after_settings', array( $this, 'coupon_option' ) );
 		add_action( 'pmpro_save_discount_code', array( $this, 'save_affiliate_coupon' ) );
 
+		// Membership level referrals
+		add_action( 'pmpro_membership_level_after_other_settings', array( $this, 'membership_level_setting' ) );
+		add_action( 'pmpro_save_membership_level', array( $this, 'save_membership_level_setting' ) );
 	}
 
 	public function add_pending_referral( $order ) {
@@ -31,6 +52,11 @@ class Affiliate_WP_PMP extends Affiliate_WP_Base {
 			$coupon_affiliate_id = $this->get_coupon_affiliate_id( $order->discount_code );
 
 		}
+
+		$membership_level = isset( $order->membership_id ) ? (int) $order->membership_id : 0;
+
+		$this->level_referral_settings = get_option( "_affwp_pmp_product_settings_{$membership_level}", array() );
+		$this->level_referrals_enabled = ( isset( $this->level_referral_settings['disabled'] ) && false == $this->level_referral_settings['disabled'] );
 
 		if ( $this->was_referred() || $coupon_affiliate_id ) {
 
@@ -52,7 +78,9 @@ class Affiliate_WP_PMP extends Affiliate_WP_Base {
 				return; // Customers cannot refer themselves
 			}
 
-			$referral_total = $this->calculate_referral_amount( $order->subtotal, $order->id, '', $affiliate_id );
+			$product_type = $this->level_referrals_enabled ? 'membership' : '';
+
+			$referral_total = $this->calculate_referral_amount( $order->subtotal, $order->id, '', $affiliate_id, $product_type );
 
 			if ( isset( $order->membership_name ) ) {
 				// paid membership level
@@ -74,6 +102,27 @@ class Affiliate_WP_PMP extends Affiliate_WP_Base {
 
 			}
 		}
+
+	}
+
+	/**
+	 * Retrieves the rate and type for a specific product.
+	 *
+	 * @since 1.8
+	 * @access public
+	 *
+	 * @return float Product rate.
+	 */
+	public function get_product_rate( $product_id = 0, $args = array() ) {
+		$affiliate_id = $args['affiliate_id'];
+
+		if ( $this->level_referrals_enabled && 'membership' === $args['product_type'] ) {
+			$rate = $this->level_referrals_settings['rate'];
+		} else {
+			return parent::get_product_rate( $product_id, $args );
+		}
+
+		return apply_filters( 'affwp_get_product_rate', $rate, $product_id, $args, $affiliate_id, $this->context );
 
 	}
 
@@ -273,5 +322,74 @@ class Affiliate_WP_PMP extends Affiliate_WP_Base {
 
 		return $affiliate_id;
 	}
+
+	/**
+	 * Outputs membership level referral settings.
+	 *
+	 * @since 1.8
+	 * @access public
+	 */
+	public function membership_level_setting() {
+		$level = isset( $_REQUEST['edit'] ) ? intval( $_REQUEST['edit'] ) : 0;
+
+		if ( ! $level ) {
+			return;
+		}
+
+		$affwp_pmp_settings = get_option( "_affwp_pmp_product_settings_{$level}", array() );
+
+		$rate     = ! empty( $affwp_pmp_settings['rate'] ) ? $affwp_pmp_settings['rate'] : '';
+		$disabled = empty( $affwp_pmp_settings['disabled'] ) ? false : true;
+		?>
+		<h3 class="topborder"><?php _e( 'Affiliate Settings', 'affiliate-wp' );?></h3>
+		<table class="form-table">
+			<tbody>
+				<tr>
+					<th scope="row" valign="top">
+						<label for="affwp_pmp_referral_rate"><?php _e( 'Referral Rate', 'affiliate-wp' );?>:</label>
+					</th>
+					<td>
+						<input id="affwp_pmp_referral_rate" class="small-text" name="affwp_pmp_referral_rate" type="number" min="0" max="999999" step="0.01" value="<?php echo esc_attr( $rate ); ?>" />
+					</td>
+				</tr>
+				<tr>
+					<th scope="row" valign="top">
+						<label for="affwp_pmp_disable_referrals"><?php _e( 'Disable Referrals', 'affiliate-wp' );?>:</label>
+					</th>
+					<td><input id="affwp_pmp_disable_referrals" name="affwp_pmp_disable_referrals" type="checkbox" value="yes" <?php checked( $disabled, true ); ?> /> <label for="affwp_pmp_disable_referrals"><?php _e( 'Check to disable per-membership referrals.', 'affiliate-wp' );?></label></td>
+				</tr>
+			</tbody>
+		</table>
+		<?php wp_nonce_field( 'affwp_pmp_membership_referrals_nonce', 'affwp_pmp_membership_referrals_nonce' );
+}
+
+	/**
+	 * Saves membership level affiliate settings.
+	 *
+	 * @since 1.8
+	 * @access public
+	 *
+	 * @param int $level_id Level ID.
+	 */
+	public function save_membership_level_setting( $level_id ) {
+		if ( ! $level_id || empty( $_REQUEST['affwp_pmp_membership_referrals_nonce'] ) ) {
+			return;
+		}
+
+		if ( ! wp_verify_nonce( 'affwp_pmp_membership_referrals_nonce', 'affwp_pmp_membership_referrals_nonce' ) ) {
+			return;
+		}
+
+		$rate     = isset( $_REQUEST['affwp_pmp_referral_rate'] ) ? sanitize_text_field( $_REQUEST['affwp_pmp_referral_rate'] ) : '';
+		$disabled = (bool) isset( $_REQUEST['affwp_pmp_disable_referrals'] );
+
+		$settings = array(
+			'rate'      => $rate,
+			'disabled'  => $disabled,
+		);
+
+		update_option( "_affwp_pmp_product_settings_{$level_id}", $settings );
+	}
+
 }
 new Affiliate_WP_PMP;
