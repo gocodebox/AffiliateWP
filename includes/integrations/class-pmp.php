@@ -343,6 +343,8 @@ class Affiliate_WP_PMP extends Affiliate_WP_Base {
 			return;
 		}
 
+		$default_rate = affiliate_wp()->settings->get( 'referral_rate', 20 );
+
 		$affwp_pmp_settings = get_option( "_affwp_pmp_product_settings_{$level}", array() );
 
 		$rate     = ! empty( $affwp_pmp_settings['rate'] ) ? $affwp_pmp_settings['rate'] : '';
@@ -356,7 +358,8 @@ class Affiliate_WP_PMP extends Affiliate_WP_Base {
 						<label for="affwp_pmp_referral_rate"><?php _e( 'Referral Rate', 'affiliate-wp' );?>:</label>
 					</th>
 					<td>
-						<input id="affwp_pmp_referral_rate" class="small-text" name="affwp_pmp_referral_rate" type="number" min="0" max="999999" step="0.01" value="<?php echo esc_attr( $rate ); ?>" />
+						<input id="affwp_pmp_referral_rate" class="small-text" name="affwp_pmp_referral_rate" type="number" min="0" max="999999" step="0.01" placeholder="<?php echo esc_attr( $default_rate ); ?>" value="<?php echo esc_attr( $rate ); ?>" />
+						<p class="description"><?php printf( __( 'The membership-level referral rate, such as 20 for 20%%. Affiliate-level referral rates will override this value. If left blank, the site default value of %2$s will be used.', 'affiliate-wp' ), '20', esc_html( $default_rate ) ); ?></p>
 					</td>
 				</tr>
 				<tr>
