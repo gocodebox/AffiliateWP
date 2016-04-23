@@ -318,8 +318,8 @@ abstract class Affiliate_WP_Base {
 		if ( ! empty( $product_id ) || ! empty( $product_type ) ) {
 			$args = array(
 				'reference'    => $reference,
-				'affiliate_id' => $affiliate_id
-				'product_Type' => $product_type
+				'affiliate_id' => $affiliate_id,
+				'product_type' => $product_type,
 			);
 
 			$rate = $this->get_product_rate( $product_id, $args );
