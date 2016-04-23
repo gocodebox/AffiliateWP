@@ -123,7 +123,6 @@ class Affiliate_WP_PMP extends Affiliate_WP_Base {
 		}
 
 		return apply_filters( 'affwp_get_product_rate', $rate, $product_id, $args, $affiliate_id, $this->context );
-
 	}
 
 	public function mark_referral_complete( $order ) {
@@ -361,7 +360,7 @@ class Affiliate_WP_PMP extends Affiliate_WP_Base {
 			</tbody>
 		</table>
 		<?php wp_nonce_field( 'affwp_pmp_membership_referrals_nonce', 'affwp_pmp_membership_referrals_nonce' );
-}
+	}
 
 	/**
 	 * Saves membership level affiliate settings.
@@ -384,8 +383,8 @@ class Affiliate_WP_PMP extends Affiliate_WP_Base {
 		$disabled = (bool) isset( $_REQUEST['affwp_pmp_disable_referrals'] );
 
 		$settings = array(
-			'rate'      => $rate,
-			'disabled'  => $disabled,
+			'rate'     => $rate,
+			'disabled' => $disabled,
 		);
 
 		update_option( "_affwp_pmp_product_settings_{$level_id}", $settings );
