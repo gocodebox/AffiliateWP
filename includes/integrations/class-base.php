@@ -295,9 +295,17 @@ abstract class Affiliate_WP_Base {
 	/**
 	 * Retrieves the rate and type for a specific product
 	 *
-	 * @access  public
-	 * @since   1.2
-	 * @return  array
+	 * @since 1.2
+	 * @access public
+	 *
+	 * @param string $base_amount  Optional. Base amount to calculate the referral amount from.
+	 *                             Default empty.
+	 * @param string $reference    Optional. Referral reference (usually the integration).
+	 *                             Default empty.
+	 * @param int    $product_id   Optional. Product ID. Default 0.
+	 * @param int    $affiliate_id Optional. Affiliate ID.
+	 * @param string $product_type Optional. Product type (such as 'membership'). Default empty.
+	 * @return string Referral amount.
 	 */
 	public function calculate_referral_amount( $base_amount = '', $reference = '', $product_id = 0, $affiliate_id = 0, $product_type = '' ) {
 
