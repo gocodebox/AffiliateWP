@@ -230,6 +230,11 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 				$orderby = 'display_name';
 				break;
 
+			case 'earnings':
+				// Earnings.
+				$orderby = 'earnings+0';
+				break;
+
 			case 'paid':
 			case 'unpaid':
 			case 'rejected':
@@ -241,11 +246,6 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 				$orderby  = "( SELECT COUNT(*) FROM {$referrals}";
 				$orderby .= " WHERE ( {$this->table_name}.affiliate_id = {$referrals}.affiliate_id";
 				$orderby .= " AND {$referrals}.status = '{$status}' ) )";
-				break;
-
-			case 'earnings':
-				// Earnings.
-				$orderby = 'earnings+0';
 				break;
 
 			default:
