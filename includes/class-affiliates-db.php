@@ -225,7 +225,18 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 			$orderby = $args['orderby'];
 		}
 
-		$orderby = array_key_exists( $orderby, $this->get_columns() ) ? $orderby : $this->primary_key;
+		// If ordering by a status, do a sub query to order by count.
+		if ( in_array( $orderby, array( 'paid', 'unpaid', 'rejected', 'pending' ) ) ) {
+			$status    = esc_sql( $orderby );
+			$referrals = affiliate_wp()->referrals->table_name;
+
+			$orderby  = "(SELECT COUNT(*) FROM {$referrals}";
+			$orderby .= " WHERE ( {$this->table_name}.affiliate_id = {$referrals}.affiliate_id";
+			$orderby .= " AND {$referrals}.status = '{$status}') )";
+		} else {
+			// Otherwise whitelist against columns in the affiliates table.
+			$orderby = array_key_exists( $orderby, $this->get_columns() ) ? $orderby : $this->primary_key;
+		}
 
 		// Non-column orderby exception.
 		if ( 'earnings' === $args['orderby'] ) {
