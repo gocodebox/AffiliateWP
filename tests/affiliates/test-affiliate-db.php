@@ -288,7 +288,7 @@ class Affiliate_DB_Tests extends WP_UnitTestCase {
 	 */
 	public function test_get_affiliates_orderby_name_should_order_by_user_display_name() {
 		$this->users[] = $this->factory->user->create( array(
-			'display_name' => 'Beta'
+			'display_name' => 'Bravo'
 		) );
 
 		$this->users[] = $this->factory->user->create( array(
