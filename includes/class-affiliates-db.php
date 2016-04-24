@@ -221,25 +221,40 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 		// Start by whitelisting against columns in the affiliates table.
 		$orderby = array_key_exists( $args['orderby'], $this->get_columns() ) ? $args['orderby'] : $this->primary_key;
 
-		// Handle orderby exceptions.
-		if ( 'date' == $args['orderby'] ) {
-			$orderby = 'date_registered';
-		} elseif ( 'name' == $args['orderby'] ) {
-			// User display_name.
-			$orderby = 'display_name';
-		} elseif ( in_array( $args['orderby'], array( 'paid', 'unpaid', 'rejected', 'pending' ) ) ) {
-			// If ordering by a referral status, do a sub query to order by count.
-			$status    = esc_sql( $args['orderby'] );
-			$referrals = affiliate_wp()->referrals->table_name;
+		// Orderby.
+		switch( $args['orderby'] ) {
+			case 'date':
+				// Registered date.
+				$orderby = 'date_registered';
+				break;
 
-			$orderby  = "( SELECT COUNT(*) FROM {$referrals}";
-			$orderby .= " WHERE ( {$this->table_name}.affiliate_id = {$referrals}.affiliate_id";
-			$orderby .= " AND {$referrals}.status = '{$status}' ) )";
-		}
+			case 'name':
+				// User display_name.
+				$orderby = 'display_name';
+				break;
 
-		// Non-column orderby exception.
-		if ( 'earnings' === $args['orderby'] ) {
-			$orderby = 'earnings+0';
+			case 'paid':
+			case 'unpaid':
+			case 'rejected':
+			case 'pending':
+				// If ordering by a referral status, do a sub query to order by count.
+				$status    = esc_sql( $args['orderby'] );
+				$referrals = affiliate_wp()->referrals->table_name;
+
+				$orderby  = "( SELECT COUNT(*) FROM {$referrals}";
+				$orderby .= " WHERE ( {$this->table_name}.affiliate_id = {$referrals}.affiliate_id";
+				$orderby .= " AND {$referrals}.status = '{$status}' ) )";
+				break;
+
+			case 'earnings':
+				// Earnings.
+				$orderby = 'earnings+0';
+				break;
+
+			default:
+				// Check against the columns whitelist. If no match, default to $primary_key.
+				$orderby = array_key_exists( $args['orderby'], $this->get_columns() ) ? $args['orderby'] : $this->primary_key;
+				break;
 		}
 
 		// Overload args values for the benefit of the cache.
