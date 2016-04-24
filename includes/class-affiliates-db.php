@@ -218,9 +218,10 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 			$order = 'ASC';
 		}
 
-		// Otherwise whitelist against columns in the affiliates table.
+		// Start by whitelisting against columns in the affiliates table.
 		$orderby = array_key_exists( $args['orderby'], $this->get_columns() ) ? $args['orderby'] : $this->primary_key;
 
+		// Handle orderby exceptions.
 		if ( 'date' == $args['orderby'] ) {
 			$orderby = 'date_registered';
 		} elseif ( 'name' == $args['orderby'] ) {
