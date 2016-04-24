@@ -237,6 +237,7 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 				break;
 
 			case 'visits':
+				// If ordering by visits, do a sub-query based on the count.
 				$visits = affiliate_wp()->visits->table_name;
 
 				$orderby  = "( SELECT COUNT(*) FROM {$visits}";
@@ -247,7 +248,7 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 			case 'unpaid':
 			case 'rejected':
 			case 'pending':
-				// If ordering by a referral status, do a sub query to order by count.
+				// If ordering by a referral status, do a sub-query to order by count.
 				$status    = esc_sql( $args['orderby'] );
 				$referrals = affiliate_wp()->referrals->table_name;
 
