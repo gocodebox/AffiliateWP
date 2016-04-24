@@ -58,7 +58,8 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 	 * Retrieve affiliates from the database
 	 *
 	 * @since 1.0
-	 * @since 1.8 The `$affiliate_id` argument was added. `$orderby` now accepts referral statuses and 'visits'.
+	 * @since 1.8 The `$affiliate_id` argument was added. `$orderby` now accepts referral statuses, 'visits',
+	 *            and 'username'.
 	 * @access public
 	 *
 	 * @param array $args {
@@ -72,8 +73,8 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 	 *     @type string    $order        How to order returned affiliate results. Accepts 'ASC' or 'DESC'.
 	 *                                   Default 'DESC'.
 	 *     @type string    $orderby      Affiliates table column to order results by. Also accepts 'paid',
-	 *                                   'unpaid', 'rejected', or 'pending' referral statuses, and 'visits'.
-	 *                                   Default 'affiliate_id'.
+	 *                                   'unpaid', 'rejected', or 'pending' referral statuses, 'visits', 'name'
+	 *                                   (user display_name), or 'username' (user user_login). Default 'affiliate_id'.
 	 * }
 	 * @param bool  $count Optional. Whether to return only the total number of results found. Default false.
 	 * @return array Array of affiliate objects (if found).
@@ -231,6 +232,11 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 				$orderby = 'display_name';
 				break;
 
+			case 'username':
+				// Username.
+				$orderby = 'user_login';
+				break;
+
 			case 'earnings':
 				// Earnings.
 				$orderby = 'earnings+0';
@@ -279,11 +285,17 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 
 			} else {
 
-				if ( 'display_name' === $args['orderby'] ) {
+				if ( in_array( $args['orderby'], array( 'display_name', 'user_login' ) ) ) {
+
+					if ( 'display_name' === $args['orderby'] ) {
+						$orderby = 'u.display_name';
+					} elseif ( 'user_login' === $args['orderby'] ) {
+						$orderby = 'u.user_login';
+					}
 
 					$results = $wpdb->get_results(
 						$wpdb->prepare(
-							"SELECT * FROM {$this->table_name} a INNER JOIN {$wpdb->users} u ON a.user_id = u.ID {$where} ORDER BY u.display_name {$order} LIMIT %d, %d;",
+							"SELECT * FROM {$this->table_name} a INNER JOIN {$wpdb->users} u ON a.user_id = u.ID {$where} ORDER BY {$orderby} {$order} LIMIT %d, %d;",
 							absint( $args['offset'] ),
 							absint( $args['number'] )
 						)
