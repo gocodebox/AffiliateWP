@@ -261,7 +261,7 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 
 					$results = $wpdb->get_results(
 						$wpdb->prepare(
-							"SELECT * FROM {$this->table_name} a INNER JOIN {$wpdb->users} u ON a.user_id = u.ID {$where} ORDER BY {$orderby} {$order} LIMIT %d, %d;",
+							"SELECT * FROM {$this->table_name} a INNER JOIN {$wpdb->users} u ON a.user_id = u.ID {$where} ORDER BY u.display_name {$order} LIMIT %d, %d;",
 							absint( $args['offset'] ),
 							absint( $args['number'] )
 						)
