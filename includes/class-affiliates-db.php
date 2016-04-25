@@ -58,7 +58,7 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 	 * Retrieve affiliates from the database
 	 *
 	 * @since 1.0
-	 * @since 1.8 The `$affiliate_id` argument was added. `$orderby` now accepts referral statuses, 'visits',
+	 * @since 1.8 The `$affiliate_id` argument was added. `$orderby` now accepts referral statuses.
 	 *            and 'username'.
 	 * @access public
 	 *
@@ -73,7 +73,7 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 	 *     @type string    $order        How to order returned affiliate results. Accepts 'ASC' or 'DESC'.
 	 *                                   Default 'DESC'.
 	 *     @type string    $orderby      Affiliates table column to order results by. Also accepts 'paid',
-	 *                                   'unpaid', 'rejected', or 'pending' referral statuses, 'visits', 'name'
+	 *                                   'unpaid', 'rejected', or 'pending' referral statuses, 'name'
 	 *                                   (user display_name), or 'username' (user user_login). Default 'affiliate_id'.
 	 * }
 	 * @param bool  $count Optional. Whether to return only the total number of results found. Default false.
@@ -240,14 +240,6 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 			case 'earnings':
 				// Earnings.
 				$orderby = 'earnings+0';
-				break;
-
-			case 'visits':
-				// If ordering by visits, do a sub-query based on the count.
-				$visits = affiliate_wp()->visits->table_name;
-
-				$orderby  = "( SELECT COUNT(*) FROM {$visits}";
-				$orderby .= " WHERE ( {$this->table_name}.affiliate_id = {$visits}.affiliate_id ) )";
 				break;
 
 			case 'paid':

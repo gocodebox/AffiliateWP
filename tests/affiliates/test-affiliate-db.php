@@ -351,44 +351,6 @@ class Affiliate_DB_Tests extends WP_UnitTestCase {
 	/**
 	 * @covers Affiliate_WP_DB_Affiliates::get_affiliates()
 	 */
-	public function test_get_affiliates_orderby_visits_should_order_by_visit_count() {
-		$this->_set_up_affiliates( 3 );
-
-		// Add 5 visit for affiliate 1.
-		for ( $i = 0; $i <= 5; $i++ ) {
-			affiliate_wp()->visits->add( array(
-				'affiliate_id' => $this->affiliates[0]
-			) );
-		}
-
-		// Add 7 visits for affiliate 2.
-		for ( $i = 0; $i <= 7; $i++ ) {
-			affiliate_wp()->visits->add( array(
-				'affiliate_id' => $this->affiliates[1]
-			) );
-		}
-
-		// Add 10 visits for affiliate 3.
-		for ( $i = 0; $i <= 10; $i++ ) {
-			affiliate_wp()->visits->add( array(
-				'affiliate_id' => $this->affiliates[2]
-			) );
-		}
-
-		$results = affiliate_wp()->affiliates->get_affiliates( array(
-			'orderby' => 'visits',
-			'order'   => 'ASC'
-		) );
-
-		// Order should be smallest to largest: 0 (5 visits), 1 (7 visits), 2 (10 visits).
-		$this->assertEquals( $this->affiliates[0], $results[0]->affiliate_id );
-		$this->assertEquals( $this->affiliates[1], $results[1]->affiliate_id );
-		$this->assertEquals( $this->affiliates[2], $results[2]->affiliate_id );
-	}
-
-	/**
-	 * @covers Affiliate_WP_DB_Affiliates::get_affiliates()
-	 */
 	public function test_get_affiliates_orderby_valid_referral_status_should_order_by_that_referral_status_count() {
 		$this->_set_up_affiliates( 3 );
 		$referrals = array();
