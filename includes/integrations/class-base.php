@@ -298,12 +298,11 @@ abstract class Affiliate_WP_Base {
 	 * @since 1.2
 	 * @access public
 	 *
-	 * @param string $base_amount  Optional. Base amount to calculate the referral amount from.
-	 *                             Default empty.
-	 * @param string $reference    Optional. Referral reference (usually the integration).
-	 *                             Default empty.
-	 * @param int    $product_id   Optional. Product ID. Default 0.
-	 * @param int    $affiliate_id Optional. Affiliate ID.
+	 * @param string $base_amount      Optional. Base amount to calculate the referral amount from.
+	 *                                 Default empty.
+	 * @param string|int $reference    Optional. Referral reference (usually the order ID). Default empty.
+	 * @param int        $product_id   Optional. Product ID. Default 0.
+	 * @param int        $affiliate_id Optional. Affiliate ID.
 	 * @return string Referral amount.
 	 */
 	public function calculate_referral_amount( $base_amount = '', $reference = '', $product_id = 0, $affiliate_id = 0 ) {
