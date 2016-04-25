@@ -220,6 +220,8 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 			$order = 'ASC';
 		}
 
+		$join = '';
+
 		// Orderby.
 		switch( $args['orderby'] ) {
 			case 'date':
@@ -230,11 +232,13 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 			case 'name':
 				// User display_name.
 				$orderby = 'u.display_name';
+				$join = "a INNER JOIN {$wpdb->users} u ON a.user_id = u.ID";
 				break;
 
 			case 'username':
 				// Username.
 				$orderby = 'u.user_login';
+				$join = "a INNER JOIN {$wpdb->users} u ON a.user_id = u.ID";
 				break;
 
 			case 'earnings':
@@ -281,7 +285,7 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 
 					$results = $wpdb->get_results(
 						$wpdb->prepare(
-							"SELECT * FROM {$this->table_name} a INNER JOIN {$wpdb->users} u ON a.user_id = u.ID {$where} ORDER BY {$orderby} {$order} LIMIT %d, %d;",
+							"SELECT * FROM {$this->table_name} {$join} {$where} ORDER BY {$orderby} {$order} LIMIT %d, %d;",
 							absint( $args['offset'] ),
 							absint( $args['number'] )
 						)
@@ -291,7 +295,7 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 
 					$results = $wpdb->get_results(
 						$wpdb->prepare(
-							"SELECT * FROM {$this->table_name} {$where} ORDER BY {$orderby} {$order} LIMIT %d, %d;",
+							"SELECT * FROM {$this->table_name} {$join} {$where} ORDER BY {$orderby} {$order} LIMIT %d, %d;",
 							absint( $args['offset'] ),
 							absint( $args['number'] )
 						)
