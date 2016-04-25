@@ -129,6 +129,9 @@ class Affiliate_WP_PMP extends Affiliate_WP_Base {
 			$rate = $this->level_referrals_settings['rate'];
 		}
 
+		// Product ID is expected to be 0 for PMP.
+		$product_id = 0;
+
 		/** This filter is documented in includes/integrations/class-base.php */
 		return apply_filters( 'affwp_get_product_rate', $rate, $product_id, $args, $affiliate_id, $this->context );
 	}
