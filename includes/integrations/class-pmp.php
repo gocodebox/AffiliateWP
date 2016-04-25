@@ -87,7 +87,7 @@ class Affiliate_WP_PMP extends Affiliate_WP_Base {
 
 			$product_type = $this->level_referrals_enabled ? 'membership' : '';
 
-			$referral_total = $this->calculate_referral_amount( $order->subtotal, $order->id, '', $affiliate_id, $product_type );
+			$referral_total = $this->calculate_referral_amount( $order->subtotal, $order->id, $membership_level, $affiliate_id );
 
 			if ( isset( $order->membership_name ) ) {
 				// paid membership level
@@ -123,10 +123,10 @@ class Affiliate_WP_PMP extends Affiliate_WP_Base {
 	public function get_product_rate( $product_id = 0, $args = array() ) {
 		$affiliate_id = $args['affiliate_id'];
 
-		if ( $this->level_referrals_enabled && 'membership' === $args['product_type'] ) {
+		$rate = '';
+
+		if ( $this->level_referrals_enabled ) {
 			$rate = $this->level_referrals_settings['rate'];
-		} else {
-			return parent::get_product_rate( $product_id, $args );
 		}
 
 		/** This filter is documented in includes/integrations/class-base.php */

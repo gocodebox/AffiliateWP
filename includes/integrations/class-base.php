@@ -296,7 +296,6 @@ abstract class Affiliate_WP_Base {
 	 * Retrieves the rate and type for a specific product
 	 *
 	 * @since 1.2
-	 * @since 1.8 The `$product_type` parameter was added
 	 * @access public
 	 *
 	 * @param string $base_amount  Optional. Base amount to calculate the referral amount from.
@@ -305,24 +304,17 @@ abstract class Affiliate_WP_Base {
 	 *                             Default empty.
 	 * @param int    $product_id   Optional. Product ID. Default 0.
 	 * @param int    $affiliate_id Optional. Affiliate ID.
-	 * @param string $product_type Optional. Product type (such as 'membership'). Default empty.
 	 * @return string Referral amount.
 	 */
-	public function calculate_referral_amount( $base_amount = '', $reference = '', $product_id = 0, $affiliate_id = 0, $product_type = '' ) {
+	public function calculate_referral_amount( $base_amount = '', $reference = '', $product_id = 0, $affiliate_id = 0 ) {
 
 		// the affiliate ID can be optionally passed in to override the referral amount
 		$affiliate_id = ! empty( $affiliate_id ) ? $affiliate_id : $this->get_affiliate_id( $reference );
 
 		$rate = '';
 
-		if ( ! empty( $product_id ) || ! empty( $product_type ) ) {
-			$args = array(
-				'reference'    => $reference,
-				'affiliate_id' => $affiliate_id,
-				'product_type' => $product_type,
-			);
-
-			$rate = $this->get_product_rate( $product_id, $args );
+		if ( ! empty( $product_id ) ) {
+			$rate = $this->get_product_rate( $product_id, array( 'reference' => $reference, 'affiliate_id' => $affiliate_id ) );
 		}
 
 		$amount = affwp_calc_referral_amount( $base_amount, $affiliate_id, $reference, $rate, $product_id );
