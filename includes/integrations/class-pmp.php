@@ -85,8 +85,6 @@ class Affiliate_WP_PMP extends Affiliate_WP_Base {
 				return; // Customers cannot refer themselves
 			}
 
-			$product_type = $this->level_referrals_enabled ? 'membership' : '';
-
 			$referral_total = $this->calculate_referral_amount( $order->subtotal, $order->id, $membership_level, $affiliate_id );
 
 			if ( isset( $order->membership_name ) ) {
