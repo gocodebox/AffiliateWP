@@ -58,18 +58,20 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 	 * Retrieve affiliates from the database
 	 *
 	 * @since 1.0
+	 * @since 1.8 The `$affiliate_id` argument was added.
 	 * @access public
 	 *
 	 * @param array $args {
 	 *     Optional. Arguments for querying affiliates. Default empty array.
 	 *
-	 *     @type int    $number  Number of affiliates to query for. Default 20.
-	 *     @type int    $offset  Number of affiliates to offset the query for. Default 0.
-	 *     @type int    $user_id User ID that corresponds to the affiliate user.
-	 *     @type string $status  Affiliate status. Default empty.
-	 *     @type string $order   How to order returned affiliate results. Accepts 'ASC' or 'DESC'.
-	 *                           Default 'DESC'.
-	 *     @type string $orderby Field to order the results by. Default 'affiliate_id'.
+	 *     @type int       $number       Number of affiliates to query for. Default 20.
+	 *     @type int       $offset       Number of affiliates to offset the query for. Default 0.
+	 *     @type int|array $user_id      User ID or array of user IDs that correspond to the affiliate user.
+	 *     @type int|array $affiliate_id Affiliate ID or array of affiliate IDs to retrieve.
+	 *     @type string    $status       Affiliate status. Default empty.
+	 *     @type string    $order        How to order returned affiliate results. Accepts 'ASC' or 'DESC'.
+	 *                                   Default 'DESC'.
+	 *     @type string    $orderby      Field to order the results by. Default 'affiliate_id'.
 	 * }
 	 * @param bool  $count Optional. Whether to return only the total number of results found. Default false.
 	 * @return array Array of affiliate objects (if found).
@@ -78,12 +80,13 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 		global $wpdb;
 
 		$defaults = array(
-			'number'  => 20,
-			'offset'  => 0,
-			'user_id' => 0,
-			'status'  => '',
-			'order'   => 'DESC',
-			'orderby' => 'affiliate_id'
+			'number'       => 20,
+			'offset'       => 0,
+			'user_id'      => 0,
+			'affiliate_id' => 0,
+			'status'       => '',
+			'order'        => 'DESC',
+			'orderby'      => 'affiliate_id'
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -110,6 +113,21 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 
 			$where .= "WHERE `user_id` IN( {$user_ids} ) ";
 
+		}
+
+		// Specific affiliates.
+		if ( ! empty( $args['affiliate_id'] ) ) {
+			if ( is_array( $args['affiliate_id'] ) ) {
+				$affiliates = implode( ',', array_map( 'intval', $args['affiliate_id'] ) );
+			} else {
+				$affiliates = intval( $args['affiliate_id'] );
+			}
+
+			if ( empty( $args['user_id'] ) ) {
+				$where .= "WHERE `affiliate_id` IN( {$affiliates} )";
+			} else {
+				$where .= "AND `affiliate_id` IN( {$affiliates} )";
+			}
 		}
 
 		if ( ! empty( $args['status'] ) ) {

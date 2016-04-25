@@ -493,3 +493,60 @@ function affwp_abs_number_round( $val, $precision = 2 ) {
 	return $val;
 
 }
+
+/**
+ * Makes a URL more human readable by removing unnecessary elements.
+ *
+ * @since 1.8
+ *
+ * @param string $url URL to parse.
+ * @return string "Human readable" URL.
+ */
+function affwp_make_url_human_readable( $url ) {
+	$parts = parse_url( $url );
+
+	if ( ! $parts ) {
+		return $url;
+	}
+
+	$path_with_prefixed_slash = empty( $parts['path'] ) ? '' : $parts['path'];
+	$path_without_prefix = substr( $path_with_prefixed_slash, 1 );
+
+	if ( ! empty( $parts['query'] ) ) {
+
+		parse_str( $parts['query'], $query_vars );
+
+		/** @var WP $wp */
+		global $wp;
+
+		$public_query_vars = $wp->public_query_vars;
+
+		$query_vars_to_keep = array();
+
+		// Whitelist against public (registered) query vars.
+		foreach ( $query_vars as $var => $value ) {
+
+			if ( in_array( $var, $public_query_vars ) ) {
+				$query_vars_to_keep[ $var ] = $value;
+			}
+		}
+	}
+
+	if ( ! empty( $query_vars_to_keep ) ) {
+		$query_string = '?' . http_build_query( $query_vars_to_keep );
+	} else {
+		$query_string = '';
+	}
+
+	if ( empty( $path_without_prefix ) ) {
+		$human_readable = $parts['host'];
+
+		if ( ! empty( $query_string ) ) {
+			$human_readable = trailingslashit( $human_readable ) . $query_string;
+		}
+	} else {
+		$human_readable = '../' . trailingslashit( $path_without_prefix ) . $query_string;
+	}
+
+	return $human_readable;
+}

@@ -2,6 +2,10 @@
 
 	<h4><?php _e( 'Referral URL Visits', 'affiliate-wp' ); ?></h4>
 
+	<span id="affwp-table-summary" class="screen-reader-text">
+		<?php _e( 'Column one lists the visit URL in relative format, column two lists the referrer, and column three indicates whether the visit converted into a referral.', 'affiliate-wp' ); ?>
+	</span>
+
 	<?php
 	$per_page = 30;
 	$page     = get_query_var( 'paged' ) ? get_query_var( 'paged' ) : 1;
@@ -15,7 +19,7 @@
 	);
 	?>
 
-	<table id="affwp-affiliate-dashboard-visits" class="affwp-table">
+	<table id="affwp-affiliate-dashboard-visits" class="affwp-table" aria-describedby="affwp-table-summary">
 		<thead>
 			<tr>
 				<th class="visit-url"><?php _e( 'URL', 'affiliate-wp' ); ?></th>
@@ -29,11 +33,17 @@
 
 				<?php foreach ( $visits as $visit ) : ?>
 					<tr>
-						<td><?php echo $visit->url; ?></td>
+						<td>
+							<a href="<?php echo esc_url( $visit->url ); ?>" title="<?php echo esc_attr( $visit->url ); ?>">
+								<?php echo affwp_make_url_human_readable( $visit->url ); ?>
+							</a>
+						</td>
 						<td><?php echo ! empty( $visit->referrer ) ? $visit->referrer : __( 'Direct traffic', 'affiliate-wp' ); ?></td>
 						<td>
 							<?php $converted = ! empty( $visit->referral_id ) ? 'yes' : 'no'; ?>
-							<span class="visit-converted <?php echo esc_attr( $converted ); ?>"><i></i></span>
+							<span class="visit-converted <?php echo esc_attr( $converted ); ?>" aria-label="<?php printf( esc_attr__( 'Visit converted: %s', 'affiliate-wp' ), $converted ); ?>">
+								<i></i>
+							</span>
 						</td>
 					</tr>
 				<?php endforeach; ?>

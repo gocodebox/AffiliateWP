@@ -3,6 +3,8 @@
  * Tests for Affiliate_WP_DB_Affiliates class
  *
  * @covers Affiliate_WP_DB_Affiliates
+ * @group database
+ * @group affiliates
  */
 class Affiliate_DB_Tests extends WP_UnitTestCase {
 
@@ -107,4 +109,97 @@ class Affiliate_DB_Tests extends WP_UnitTestCase {
 		$this->assertEmpty( wp_list_filter( $results, array( 'user_id' => $user3 ) ) );
 	}
 
+	/**
+	 * @covers Affiliate_WP_DB_Affiliates::get_affiliates()
+	 */
+	public function test_get_affiliates_with_integer_user_id_should_return_affiliate_for_that_user() {
+		$user = $this->factory->user->create_and_get();
+
+		// Add the affiliate.
+		$affilite_id = affiliate_wp()->affiliates->add( array(
+			'user_id' => $user->ID
+		) );
+
+		// Query affiliates.
+		$results = affiliate_wp()->affiliates->get_affiliates( array(
+			'user_id' => $user->ID
+		) );
+
+		$this->assertEqualSets( array( $affilite_id ), wp_list_pluck( $results, 'affiliate_id' ) );
+		$this->assertEqualSets( array( $user->ID ), wp_list_pluck( $results, 'user_id' ) );
+	}
+
+	/**
+	 * @covers Affiliate_WP_DB_Affiliates::get_affiliates()
+	 */
+	public function test_get_affiliates_with_array_of_user_ids_should_return_matching_affiliates() {
+		$users = $this->factory->user->create_many( 3 );
+
+		// Add affiliates.
+		foreach ( $users as $user_id ) {
+			affiliate_wp()->affiliates->add( array(
+				'user_id' => $user_id
+			) );
+		}
+
+		// Query affiliates.
+		$results = affiliate_wp()->affiliates->get_affiliates( array(
+			'user_id' => $users
+		) );
+
+		$found_users = wp_list_pluck( $results, 'user_id' );
+		// Users.
+		$this->assertTrue( in_array( $users[0], $found_users ) );
+		$this->assertTrue( in_array( $users[1], $found_users ) );
+		$this->assertTrue( in_array( $users[2], $found_users ) );
+	}
+
+	/**
+	 * @covers Affiliate_WP_DB_Affiliates::get_affiliates()
+	 */
+	public function test_get_affiliates_with_integer_affiliate_id_should_return_that_affiliate() {
+		$user = $this->factory->user->create_and_get();
+
+		// Add the affiliate.
+		$affiliate_id = affiliate_wp()->affiliates->add( array(
+			'user_id' => $user->ID
+		) );
+
+		// Query affiliates.
+		$results = affiliate_wp()->affiliates->get_affiliates( array(
+			'affiliate_id' => $affiliate_id
+		) );
+
+		$this->assertEqualSets( array( $affiliate_id ), wp_list_pluck( $results, 'affiliate_id' ) );
+		$this->assertEqualSets( array( $user->ID ), wp_list_pluck( $results, 'user_id' ) );
+	}
+
+	/**
+	 * @covers Affiliate_WP_DB_Affiliates::get_affiliates()
+	 */
+	public function test_get_affiliates_with_array_of_affiliate_ids_should_return_matching_affiliates() {
+		$users = $this->factory->user->create_many( 3 );
+		$affiliates = array();
+
+		// Add affiliates.
+		foreach ( $users as $user_id ) {
+			$affiliate_id = affiliate_wp()->affiliates->add( array(
+				'user_id' => $user_id
+			) );
+
+			// Grab affiliates.
+			$affiliates[] = $affiliate_id;
+		}
+
+		// Query affiliates.
+		$results = affiliate_wp()->affiliates->get_affiliates( array(
+			'affiliate_id' => $affiliates
+		) );
+
+		$found_affiliates = wp_list_pluck( $results, 'affiliate_id' );
+
+		$this->assertTrue( in_array( $affiliates[0], $found_affiliates ) );
+		$this->assertTrue( in_array( $affiliates[1], $found_affiliates ) );
+		$this->assertTrue( in_array( $affiliates[2], $found_affiliates ) );
+	}
 }
