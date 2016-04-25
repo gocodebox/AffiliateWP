@@ -314,7 +314,7 @@ abstract class Affiliate_WP_Base {
 		$rate = '';
 
 		if ( ! empty( $product_id ) ) {
-			$rate = $this->get_product_rate( $product_id, array( 'reference' => $reference, 'affiliate_id' => $affiliate_id ) );
+			$rate = $this->get_product_rate( $product_id, $args = array( 'reference' => $reference, 'affiliate_id' => $affiliate_id ) );
 		}
 
 		$amount = affwp_calc_referral_amount( $base_amount, $affiliate_id, $reference, $rate, $product_id );
