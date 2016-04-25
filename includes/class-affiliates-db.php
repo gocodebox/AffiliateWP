@@ -229,12 +229,12 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 
 			case 'name':
 				// User display_name.
-				$orderby = 'display_name';
+				$orderby = 'u.display_name';
 				break;
 
 			case 'username':
 				// Username.
-				$orderby = 'user_login';
+				$orderby = 'u.user_login';
 				break;
 
 			case 'earnings':
@@ -277,13 +277,7 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 
 			} else {
 
-				if ( in_array( $args['orderby'], array( 'display_name', 'user_login' ) ) ) {
-
-					if ( 'display_name' === $args['orderby'] ) {
-						$orderby = 'u.display_name';
-					} elseif ( 'user_login' === $args['orderby'] ) {
-						$orderby = 'u.user_login';
-					}
+				if ( in_array( $args['orderby'], array( 'u.display_name', 'u.user_login' ) ) ) {
 
 					$results = $wpdb->get_results(
 						$wpdb->prepare(
