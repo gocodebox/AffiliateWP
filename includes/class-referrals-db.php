@@ -360,7 +360,7 @@ class Affiliate_WP_Referrals_DB extends Affiliate_WP_DB  {
 			}
 
 			if( is_array( $args['context'] ) ) {
-				$where .= " `context` IN(" . implode( ',', array_map( 'esc_sql', $args['context'] ) ) . ") ";
+				$where .= " `context` IN('" . implode( "','", array_map( 'esc_sql', $args['context'] ) ) . "') ";
 			} else {
 				if( ! empty( $args['search'] ) ) {
 					$context = esc_sql( $args['context'] );
