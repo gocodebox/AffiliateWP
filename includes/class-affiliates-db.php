@@ -281,27 +281,13 @@ class Affiliate_WP_DB_Affiliates extends Affiliate_WP_DB {
 
 			} else {
 
-				if ( in_array( $args['orderby'], array( 'u.display_name', 'u.user_login' ) ) ) {
-
-					$results = $wpdb->get_results(
-						$wpdb->prepare(
-							"SELECT * FROM {$this->table_name} {$join} {$where} ORDER BY {$orderby} {$order} LIMIT %d, %d;",
-							absint( $args['offset'] ),
-							absint( $args['number'] )
-						)
-					);
-
-				} else {
-
-					$results = $wpdb->get_results(
-						$wpdb->prepare(
-							"SELECT * FROM {$this->table_name} {$join} {$where} ORDER BY {$orderby} {$order} LIMIT %d, %d;",
-							absint( $args['offset'] ),
-							absint( $args['number'] )
-						)
-					);
-
-				}
+				$results = $wpdb->get_results(
+					$wpdb->prepare(
+						"SELECT * FROM {$this->table_name} {$join} {$where} ORDER BY {$orderby} {$order} LIMIT %d, %d;",
+						absint( $args['offset'] ),
+						absint( $args['number'] )
+					)
+				);
 
 			}
 
