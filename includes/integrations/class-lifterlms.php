@@ -66,46 +66,44 @@ class Affiliate_WP_LifterLMS extends Affiliate_WP_Base {
 
 		}
 
-		// if WooCommerce is being use as the LLMS payment method for the order skip referrals for the order
-		// because WooCommerce methods will handle the affiliate stuff
-		if ( 'woocommerce' === $order->payment_type ) {
+		// if this was a referral or we have a coupon and a coupon affiliate id
+		if ( $this->was_referred() || ( $order->coupon && $order->coupon_affiliate_id ) ) {
 
-			if ( $this->debug ) {
+			// if WooCommerce is being use as the LLMS payment method for the order skip referrals for the order
+			// because WooCommerce methods will handle the affiliate stuff
+			if ( 'woocommerce' === $order->payment_type ) {
 
-				$this->log( __( 'Referral not created because WooCommerce was used for payment.', 'affiliate-wp' ) );
+				if ( $this->debug ) {
+
+					$this->log( __( 'Referral not created because WooCommerce was used for payment.', 'affiliate-wp' ) );
+
+				}
+
+				return;
 
 			}
 
-			return;
+			// if referrals are disabled for the LLMS product, don't create a referral
+			if ( get_post_meta( $order->product_id, '_affwp_disable_referrals', true ) ) {
 
-		}
+				return;
 
-		// if referrals are disabled for the LLMS product, don't create a referral
-		if ( get_post_meta( $order->product_id, '_affwp_disable_referrals', true ) ) {
+			}
 
-			return;
+			// check for an existing referral
+			$existing = affiliate_wp()->referrals->get_by( 'reference', $order_id, $this->context );
 
-		}
+			// if an existing referral exists and it is paid or unpaid exit.
+			if ( $existing && ( 'paid' === $existing->status || 'unpaid' === $existing->status ) ) {
 
-		// check for an existing referral
-		$existing = affiliate_wp()->referrals->get_by( 'reference', $order_id, $this->context );
+				return;
 
-		// if an existing referral exists and it is paid or unpaid exit.
-		if ( $existing && ( 'paid' === $existing->status || 'unpaid' === $existing->status ) ) {
-
-			return;
-
-		}
-
-		// if this was a referral or we have a coupon and a coupon affiliate id
-		if ( $this->was_referred() || ( $order->coupon && $order->coupon_affiliate_id ) ) {
+			}
 
 			// get the referring affiliate's affiliate id
 			$affiliate_id = $this->get_affiliate_id( $order_id );
 
 			// use our coupon affiliate if we have one
-			// @note 	is this the correct way to do this? Always override with the coupon?
-			// 			I guess the coupon will override cookies or other tracking methods
 			if ( false !== $order->coupon_affiliate_id ) {
 
 				$affiliate_id = $order->coupon_affiliate_id;
@@ -509,6 +507,9 @@ class Affiliate_WP_LifterLMS extends Affiliate_WP_Base {
 	 */
 	public function product_meta_output( $fields ) {
 
+		add_filter( 'affwp_is_admin_page', '__return_true' );
+		affwp_admin_scripts();
+
 		global $post;
 
 		$product_type = str_replace( 'llms_', '', $post->post_type );
@@ -548,116 +549,20 @@ class Affiliate_WP_LifterLMS extends Affiliate_WP_Base {
 					'group'      => '_affwp_enable_referral_overrides-show'
 				),
 
+				// JS uses this to only bind on llms pages
+				array(
+					'type' => 'custom-html',
+					'id' => 'affwp_llms_enabled',
+					'label' => '',
+					'value' => '<div id="affwp-llms-enabled"></div>',
+				),
+
 			),
 
 		);
 
-		add_action( 'admin_footer', array( $this, 'product_meta_output_scripts' ) );
-
 		return apply_filters( 'affwp_llms_meta_fields_product', $fields );
 
-	}
-
-	/**
-	 * Output inline scripts to handle the JS interaction on the AffiliateWP tab
-	 * on LifterLMS Course & Membership screens
-	 *
-	 * @return void
-	 * @access public
-	 */
-	public function product_meta_output_scripts() {
-		?>
-		<script type="text/javascript">
-		( function( $ ) {
-
-			window.llms = window.llms || {};
-			/**
-			 * Handle the AffiliateWP Tab JS interaction
-			 * @return obj
-			 */
-			window.llms.metabox_product_affwp = function() {
-
-				/**
-				 * Initialize and Bind events
-				 * @return void
-				 */
-				this.init = function() {
-
-					this.bind_disable_field();
-					$( '#_affwp_disable_referrals' ).trigger( 'change' );
-
-					this.bind_override_field();
-					$( '#_affwp_enable_referral_overrides' ).trigger( 'change' );
-
-				};
-
-				/**
-				 * Bind thie "disable referrals" fields
-				 * @return void
-				 */
-				this.bind_disable_field = function() {
-
-					$( '#_affwp_disable_referrals' ).on( 'change', function() {
-
-						var $group = $( '.llms-affwp-disable-fields');
-
-						if ( $(this).is( ':checked' ) ) {
-
-							$group.hide( 200 );
-							$( '#_affwp_enable_referral_overrides' ).removeAttr( 'checked' ).trigger( 'change' );
-
-						} else {
-
-							$group.show( 200 );
-
-						}
-
-					} );
-
-				};
-
-				/**
-				 * Bind the "enable overrides" field
-				 * @return void
-				 */
-				this.bind_override_field = function() {
-
-					$( '#_affwp_enable_referral_overrides' ).on( 'change', function() {
-
-						var $show = $( '._affwp_enable_referral_overrides-show'),
-							$hide = $( '._affwp_enable_referral_overrides-hide');
-
-						if ( $(this).is( ':checked' ) ) {
-
-							$show.show( 200 );
-							$hide.hide( 200 );
-							$( '#_affwp_disable_referrals' ).removeAttr( 'checked' ).trigger( 'change' ).hide( 200 );
-
-						} else {
-
-							$show.hide( 200 );
-							$hide.show( 200 );
-
-						}
-
-					} );
-
-				};
-
-				// go
-				this.init();
-
-				// return
-				return this;
-
-			};
-
-			// instatiate the class
-			var a = new window.llms.metabox_product_affwp();
-
-		} )( jQuery);
-		</script>
-		<?php
 	}
 
 	/**
