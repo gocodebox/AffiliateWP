@@ -228,3 +228,105 @@ jQuery(document).ready(function($) {
 	});
 
 });
+
+( function( $ ) {
+
+	window.llms = window.llms || {};
+
+	/**
+	 * Handle the AffiliateWP Tab JS interaction
+	 * @return obj
+	 */
+	window.llms.metabox_product_affwp = function() {
+
+		/**
+		 * Initialize and Bind events
+		 * @return void
+		 */
+		this.init = function() {
+
+			// only bind if our hidden input exists in the dom
+			if ( $( '#affwp-llms-enabled' ).length ) {
+
+				console.log( 'init' );
+				this.bind();
+
+			}
+
+		};
+
+		this.bind = function() {
+
+			this.bind_disable_field();
+			$( '#_affwp_disable_referrals' ).trigger( 'change' );
+
+			this.bind_override_field();
+			$( '#_affwp_enable_referral_overrides' ).trigger( 'change' );
+
+		};
+
+		/**
+		 * Bind thie "disable referrals" fields
+		 * @return void
+		 */
+		this.bind_disable_field = function() {
+
+			$( '#_affwp_disable_referrals' ).on( 'change', function() {
+
+				var $group = $( '.llms-affwp-disable-fields');
+
+				if ( $(this).is( ':checked' ) ) {
+
+					$group.hide( 200 );
+					$( '#_affwp_enable_referral_overrides' ).removeAttr( 'checked' ).trigger( 'change' );
+
+				} else {
+
+					$group.show( 200 );
+
+				}
+
+			} );
+
+		};
+
+		/**
+		 * Bind the "enable overrides" field
+		 * @return void
+		 */
+		this.bind_override_field = function() {
+
+			$( '#_affwp_enable_referral_overrides' ).on( 'change', function() {
+
+				var $show = $( '._affwp_enable_referral_overrides-show'),
+					$hide = $( '._affwp_enable_referral_overrides-hide');
+
+				if ( $(this).is( ':checked' ) ) {
+
+					$show.show( 200 );
+					$hide.hide( 200 );
+					$( '#_affwp_disable_referrals' ).removeAttr( 'checked' ).trigger( 'change' ).hide( 200 );
+
+				} else {
+
+					$show.hide( 200 );
+					$hide.show( 200 );
+
+				}
+
+			} );
+
+		};
+
+		// go
+		this.init();
+
+		// return, just bc
+		return this;
+
+	};
+
+	// instatiate the class
+	var a = new window.llms.metabox_product_affwp();
+
+} )( jQuery);
