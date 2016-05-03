@@ -240,7 +240,7 @@ jQuery(document).ready(function($) {
 	window.llms.metabox_product_affwp = function() {
 
 		/**
-		 * Initialize and Bind events
+		 * Initialize and Bind events if our check element is found
 		 * @return void
 		 */
 		this.init = function() {
@@ -248,13 +248,16 @@ jQuery(document).ready(function($) {
 			// only bind if our hidden input exists in the dom
 			if ( $( '#affwp-llms-enabled' ).length ) {
 
-				console.log( 'init' );
 				this.bind();
 
 			}
 
 		};
 
+		/**
+		 * Bind dom events
+		 * @return void
+		 */
 		this.bind = function() {
 
 			this.bind_disable_field();
