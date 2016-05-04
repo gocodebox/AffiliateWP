@@ -67,7 +67,7 @@ class Affiliate_WP_LifterLMS extends Affiliate_WP_Base {
 		}
 
 		// if this was a referral or we have a coupon and a coupon affiliate id
-		if ( $this->was_referred() || ( $order->coupon && $order->coupon_affiliate_id ) ) {
+		if ( $this->was_referred() || ( $order->coupon_id && $order->coupon_affiliate_id ) ) {
 
 			// if WooCommerce is being use as the LLMS payment method for the order skip referrals for the order
 			// because WooCommerce methods will handle the affiliate stuff
